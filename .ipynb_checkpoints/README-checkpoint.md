@@ -1,0 +1,66 @@
+# Image Measurement Tool
+
+A Python tool for measuring linear structures in TIFF images with automatic filename tracking.
+
+## Installation
+
+1. Make sure you have Python 3.7+ installed
+
+2. Install required packages:
+```bash
+pip install -r requirements.txt
+```
+
+Or install individually:
+```bash
+pip install opencv-python numpy pandas
+```
+
+## Usage
+
+1. Run the script:
+```bash
+python image_measurement_tool.py
+```
+
+2. Select the folder containing your TIFF images
+
+3. (Optional) Set a scale if you know the pixel-to-unit conversion
+   - Example: If 1 pixel = 0.5 µm, enter 0.5 as the conversion factor
+
+4. For each image:
+   - **LEFT CLICK** to add points along the structure you want to measure
+   - **Press 's'** to save the current measurement
+   - **Press 'r'** to reset/clear the current measurement
+   - **Press 'n'** to move to the next image
+   - **Press 'q'** to quit and save all measurements
+
+5. Results are saved to `measurements.csv` in the same folder as your images
+
+## Output
+
+The CSV file will have two columns:
+- `filename`: Name of the TIFF file
+- `length`: Measured length (in pixels or your specified unit)
+
+Multiple measurements per file are supported - each measurement will be a separate row with the same filename.
+
+## Tips
+
+- You can measure curved structures by clicking multiple points along the curve
+- The tool calculates the total path length through all clicked points
+- You can have multiple measurements per image
+- The measurement line is drawn in green as you click
+- If you accidentally add a wrong point, press 'r' to reset and start over
+
+## Example Output
+
+```csv
+filename,length
+image001.tiff,245.67
+image001.tiff,189.34
+image002.tiff,312.45
+image003.tiff,201.23
+image003.tiff,198.76
+image003.tiff,215.89
+```
