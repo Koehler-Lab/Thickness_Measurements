@@ -30,6 +30,7 @@ python image_measurement_tool.py
 
 4. For each image:
    - **LEFT CLICK** to add points along the structure you want to measure
+   - **SPACE** (hold) to enable panning mode, then drag the image with your mouse
    - **Press 's'** to save the current measurement
    - **Press 'r'** to reset/clear the current measurement
    - **Press 'n'** to move to the next image
@@ -47,10 +48,12 @@ Multiple measurements per file are supported - each measurement will be a separa
 
 ## Tips
 
+- **Panning**: Hold SPACE and drag with your mouse to pan around large images
+- Markers are now more delicate (small hollow circles with a center dot) for better visibility
 - You can measure curved structures by clicking multiple points along the curve
 - The tool calculates the total path length through all clicked points
 - You can have multiple measurements per image
-- The measurement line is drawn in green as you click
+- The measurement line is drawn in thin green as you click
 - If you accidentally add a wrong point, press 'r' to reset and start over
 
 ## Example Output
