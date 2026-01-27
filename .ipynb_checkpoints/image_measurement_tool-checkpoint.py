@@ -11,7 +11,7 @@ from tkinter import Tk, filedialog
 import sys
 
 class ImageMeasurementTool:
-    def __init__(self):
+    def __init__(self, window_width=1200, window_height=800):
         self.points = []
         self.measurements = []
         self.current_image = None
@@ -20,15 +20,31 @@ class ImageMeasurementTool:
         self.pixel_to_unit = 1.0  # Change this if you know your scale
         self.unit_name = "pixels"
         
+        # Window size
+        self.window_width = window_width
+        self.window_height = window_height
+        
         # Panning variables
         self.panning = False
         self.pan_start = None
         self.offset_x = 0
         self.offset_y = 0
         
+        # Image adjustment variables
+        self.brightness = 0  # Range: -100 to 100
+        self.contrast = 1.0  # Range: 0.5 to 3.0
+        
+    def apply_adjustments(self, image):
+        """Apply brightness and contrast adjustments to image"""
+        # Apply contrast
+        adjusted = cv2.convertScaleAbs(image, alpha=self.contrast, beta=self.brightness)
+        return adjusted
+    
     def draw_annotations(self):
         """Redraw all points and lines on the display image"""
-        self.display_image = self.current_image.copy()
+        # Apply adjustments to the base image
+        adjusted_image = self.apply_adjustments(self.current_image)
+        self.display_image = adjusted_image.copy()
         
         # Draw lines between points
         if len(self.points) > 1:
@@ -95,6 +111,26 @@ class ImageMeasurementTool:
         
         return total_length * self.pixel_to_unit
     
+    def center_window(self, window_name):
+        """Center the window on the screen"""
+        try:
+            # Get screen resolution
+            import tkinter as tk
+            root = tk.Tk()
+            screen_width = root.winfo_screenwidth()
+            screen_height = root.winfo_screenheight()
+            root.destroy()
+            
+            # Calculate position to center the window
+            x = (screen_width - self.window_width) // 2
+            y = (screen_height - self.window_height) // 2
+            
+            # Move window to center
+            cv2.moveWindow(window_name, x, y)
+        except:
+            # If centering fails, just continue
+            pass
+    
     def process_image(self, image_path):
         """Process a single image"""
         self.current_filename = Path(image_path).name
@@ -115,16 +151,24 @@ class ImageMeasurementTool:
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         
         self.current_image = img.copy()
-        self.display_image = img.copy()
         
-        # Reset panning for new image
+        # Reset panning and adjustments for new image
         self.offset_x = 0
         self.offset_y = 0
         self.panning = False
+        self.brightness = 0
+        self.contrast = 1.0
+        
+        # Apply initial adjustments and set display image
+        self.display_image = self.apply_adjustments(self.current_image.copy())
         
         # Create window and set mouse callback
         cv2.namedWindow('Measure Image', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Measure Image', self.window_width, self.window_height)
         cv2.setMouseCallback('Measure Image', self.mouse_callback)
+        
+        # Center window on screen
+        self.center_window('Measure Image')
         
         print(f"\n{'='*60}")
         print(f"Image: {self.current_filename}")
@@ -132,8 +176,11 @@ class ImageMeasurementTool:
         print("Instructions:")
         print("  - LEFT CLICK: Add points along the structure to measure")
         print("  - SPACE: Hold to enable panning mode (then drag with mouse)")
+        print("  - UP/DOWN arrows: Adjust brightness")
+        print("  - LEFT/RIGHT arrows: Adjust contrast")
         print("  - 's': Save current measurement and start a new one")
         print("  - 'r': Reset current measurement (clear points)")
+        print("  - 'p': Previous image")
         print("  - 'n': Next image (skip current)")
         print("  - 'q': Quit and save all measurements")
         print(f"{'='*60}\n")
@@ -151,6 +198,30 @@ class ImageMeasurementTool:
                     self.panning = False
                     self.pan_start = None
                     print("👆 Panning mode OFF - click to add points")
+            
+            elif key == 82 or key == 0:  # Up arrow - increase brightness
+                self.brightness = min(100, self.brightness + 10)
+                print(f"☀️  Brightness: {self.brightness:+d}")
+                self.draw_annotations()
+                cv2.imshow('Measure Image', self.display_image)
+            
+            elif key == 84 or key == 1:  # Down arrow - decrease brightness
+                self.brightness = max(-100, self.brightness - 10)
+                print(f"☀️  Brightness: {self.brightness:+d}")
+                self.draw_annotations()
+                cv2.imshow('Measure Image', self.display_image)
+            
+            elif key == 83 or key == 3:  # Right arrow - increase contrast
+                self.contrast = min(5.0, self.contrast + 0.2)
+                print(f"◐  Contrast: {self.contrast:.1f}x")
+                self.draw_annotations()
+                cv2.imshow('Measure Image', self.display_image)
+            
+            elif key == 81 or key == 2:  # Left arrow - decrease contrast
+                self.contrast = max(0.3, self.contrast - 0.2)
+                print(f"◐  Contrast: {self.contrast:.1f}x")
+                self.draw_annotations()
+                cv2.imshow('Measure Image', self.display_image)
             
             elif key == ord('s'):  # Save measurement
                 if len(self.points) >= 2:
@@ -174,6 +245,20 @@ class ImageMeasurementTool:
                 self.display_image = self.current_image.copy()
                 cv2.imshow('Measure Image', self.display_image)
                 print("↻ Measurement reset")
+            
+            elif key == ord('p'):  # Previous image
+                if len(self.points) >= 2:
+                    response = input("You have unsaved points. Save measurement? (y/n): ")
+                    if response.lower() == 'y':
+                        length = self.calculate_length()
+                        self.measurements.append({
+                            'filename': self.current_filename,
+                            'length': length
+                        })
+                        print(f"✓ Measurement saved: {length:.2f} {self.unit_name}")
+                self.points = []
+                cv2.destroyAllWindows()
+                return 'previous'
             
             elif key == ord('n'):  # Next image
                 if len(self.points) >= 2:
@@ -238,12 +323,23 @@ class ImageMeasurementTool:
                 print("Invalid input. Using pixels.")
         
         # Process each image
-        for i, img_path in enumerate(tiff_files, 1):
-            print(f"\n[Image {i}/{len(tiff_files)}]")
+        current_index = 0
+        while current_index < len(tiff_files):
+            img_path = tiff_files[current_index]
+            print(f"\n[Image {current_index + 1}/{len(tiff_files)}]")
             result = self.process_image(img_path)
             
             if result == 'quit':
                 break
+            elif result == 'previous':
+                # Go to previous image
+                if current_index > 0:
+                    current_index -= 1
+                else:
+                    print("⚠ Already at first image")
+                    current_index = 0  # Stay at first image
+            else:  # 'continue' or next image
+                current_index += 1
         
         # Save results
         if self.measurements:
@@ -269,5 +365,12 @@ class ImageMeasurementTool:
             print("\nNo measurements were saved.")
 
 if __name__ == "__main__":
-    tool = ImageMeasurementTool()
+    # You can adjust the default window size here (width, height)
+    # Default is 1200x800, but you can change it to any size you prefer
+    # Examples:
+    #   tool = ImageMeasurementTool(1600, 1000)  # Larger window
+    #   tool = ImageMeasurementTool(800, 600)    # Smaller window
+    #   tool = ImageMeasurementTool(1920, 1080)  # Full HD
+    
+    tool = ImageMeasurementTool(window_width=1200, window_height=800)
     tool.run()

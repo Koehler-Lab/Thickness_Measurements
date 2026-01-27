@@ -30,13 +30,27 @@ python image_measurement_tool.py
 
 4. For each image:
    - **LEFT CLICK** to add points along the structure you want to measure
-   - **SPACE** (hold) to enable panning mode, then drag the image with your mouse
+   - **SPACE** to enable or disable panning mode, then drag the image with your mouse
    - **Press 's'** to save the current measurement
    - **Press 'r'** to reset/clear the current measurement
    - **Press 'n'** to move to the next image
    - **Press 'q'** to quit and save all measurements
 
 5. Results are saved to `measurements.csv` in the same folder as your images
+
+## Customizing Window Size
+
+To change the default window size, edit the last few lines of `image_measurement_tool.py`:
+
+```python
+# Change these numbers to your preferred width and height
+tool = ImageMeasurementTool(window_width=1200, window_height=800)
+```
+
+Examples:
+- Larger window: `ImageMeasurementTool(1600, 1000)`
+- Smaller window: `ImageMeasurementTool(800, 600)`
+- Full HD: `ImageMeasurementTool(1920, 1080)`
 
 ## Output
 
