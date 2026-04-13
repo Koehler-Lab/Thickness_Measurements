@@ -111,6 +111,15 @@ class ImageMeasurementTool:
         
         return total_length * self.pixel_to_unit
     
+    def set_cursor(self, cursor_type):
+        """Set cursor type if supported by OpenCV version"""
+        try:
+            if hasattr(cv2, 'WND_PROP_CURSOR'):
+                cv2.setWindowProperty('Measure Image', cv2.WND_PROP_CURSOR, cursor_type)
+        except:
+            # Cursor change not supported in this OpenCV version
+            pass
+    
     def center_window(self, window_name):
         """Center the window on the screen"""
         try:
@@ -167,6 +176,10 @@ class ImageMeasurementTool:
         cv2.resizeWindow('Measure Image', self.window_width, self.window_height)
         cv2.setMouseCallback('Measure Image', self.mouse_callback)
         
+        # Set cursor to crosshair for precise measurements (if supported)
+        if hasattr(cv2, 'CURSOR_CROSS'):
+            self.set_cursor(cv2.CURSOR_CROSS)
+        
         # Center window on screen
         self.center_window('Measure Image')
         
@@ -193,10 +206,16 @@ class ImageMeasurementTool:
             if key == 32:  # Spacebar - toggle panning mode
                 if not self.panning:
                     self.panning = True
+                    # Change cursor to hand for panning (if supported)
+                    if hasattr(cv2, 'CURSOR_HAND'):
+                        self.set_cursor(cv2.CURSOR_HAND)
                     print("🖐️  Panning mode ON - drag to pan")
                 else:
                     self.panning = False
                     self.pan_start = None
+                    # Change cursor back to crosshair for measurement (if supported)
+                    if hasattr(cv2, 'CURSOR_CROSS'):
+                        self.set_cursor(cv2.CURSOR_CROSS)
                     print("👆 Panning mode OFF - click to add points")
             
             elif key == 82 or key == 0:  # Up arrow - increase brightness

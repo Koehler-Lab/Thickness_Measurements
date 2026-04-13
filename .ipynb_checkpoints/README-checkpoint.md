@@ -30,9 +30,12 @@ python image_measurement_tool.py
 
 4. For each image:
    - **LEFT CLICK** to add points along the structure you want to measure
-   - **SPACE** to enable or disable panning mode, then drag the image with your mouse
+   - **SPACE** (hold) to enable panning mode, then drag the image with your mouse
+   - **UP/DOWN arrows** to adjust brightness
+   - **LEFT/RIGHT arrows** to adjust contrast
    - **Press 's'** to save the current measurement
    - **Press 'r'** to reset/clear the current measurement
+   - **Press 'p'** to go back to the previous image
    - **Press 'n'** to move to the next image
    - **Press 'q'** to quit and save all measurements
 
@@ -62,13 +65,20 @@ Multiple measurements per file are supported - each measurement will be a separa
 
 ## Tips
 
+- **Cursor changes**: The cursor shows a crosshair (✛) for precise measurements, and changes to a hand (✋) when in panning mode
+- **Window position**: The window will automatically open centered on your screen
 - **Panning**: Hold SPACE and drag with your mouse to pan around large images
-- Markers are now more delicate (small hollow circles with a center dot) for better visibility
+- **Brightness/Contrast**: Use arrow keys to adjust image visibility
+  - UP/DOWN arrows: Adjust brightness (-100 to +100, increments of 10)
+  - LEFT/RIGHT arrows: Adjust contrast (0.3x to 5.0x, increments of 0.2)
+- **Navigation**: Use 'p' to go back to previous images if you need to remeasure
+- Markers are delicate (small hollow circles with a center dot) for better visibility
 - You can measure curved structures by clicking multiple points along the curve
 - The tool calculates the total path length through all clicked points
 - You can have multiple measurements per image
 - The measurement line is drawn in thin green as you click
 - If you accidentally add a wrong point, press 'r' to reset and start over
+- Brightness and contrast adjustments reset when moving to a new image
 
 ## Example Output
 

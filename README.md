@@ -65,11 +65,12 @@ Multiple measurements per file are supported - each measurement will be a separa
 
 ## Tips
 
+- **Cursor changes**: The cursor shows a crosshair (✛) for precise measurements, and changes to a hand (✋) when in panning mode
 - **Window position**: The window will automatically open centered on your screen
 - **Panning**: Hold SPACE and drag with your mouse to pan around large images
 - **Brightness/Contrast**: Use arrow keys to adjust image visibility
-  - UP/DOWN arrows: Adjust brightness (-100 to +100)
-  - LEFT/RIGHT arrows: Adjust contrast (0.5x to 3.0x)
+  - UP/DOWN arrows: Adjust brightness (-100 to +100, increments of 10)
+  - LEFT/RIGHT arrows: Adjust contrast (0.3x to 5.0x, increments of 0.2)
 - **Navigation**: Use 'p' to go back to previous images if you need to remeasure
 - Markers are delicate (small hollow circles with a center dot) for better visibility
 - You can measure curved structures by clicking multiple points along the curve
